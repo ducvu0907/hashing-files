@@ -47,8 +47,9 @@ def verify_blocks(file_blocks, h0):
 
 # testing
 if __name__ == "__main__":
-  file_path = "test_file/birthday.mp4"
-  chunk_size = 1024
-  file_blocks, h0 = hash_file(file_path, chunk_size)
-  print(h0)
-  verify_blocks(file_blocks, h0)
+  # file_path = "test_file/birthday.mp4"
+  # chunk_size = 1024
+  # file_blocks, h0 = hash_file(file_path, chunk_size)
+  # print(h0)
+  # verify_blocks(file_blocks, h0)
+	pass
