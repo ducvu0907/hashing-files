@@ -1,57 +1,46 @@
 import hashlib
-import os
 
-# input file
-file_path = "birthday.mp4"
-
-def chunk_hash(chunk_data):
+# helper function for hashing data using sha256
+def hash_data(data):
   hash_object = hashlib.sha256()
-  hash_object.update(chunk_data)
+  hash_object.update(data)
   return hash_object.digest()
 
-def verify_chunk(file_path, chunk_index, expected_hash, chunk_size=1024):
-  pass
-
+# read chunks to hash
 def read_chunks(file_object, chunk_size=1024):
   while True:
-    data = file_object.read(chunk_size)
-    if not data:
+    chunk = file_object.read(chunk_size)
+    if not chunk:
       break
-    yield data
+    yield chunk
     
-def read_chunks_reversed(file_path, chunk_size=1024):
+# hash each chunks
+def hash_file(file_path, chunk_size=1024):
+  chunk_list = []
   with open(file_path, "rb") as file:
-    file.seek(0, 2)
-    file_size = file.tell()
-    remaining_bytes = file_size
-    while remaining_bytes > 0:
-      start_pos = max(0, file_size - chunk_size)
-      bytes_to_read = min(remaining_bytes, chunk_size)
-      file.seek(start_pos)
-      chunk = file.read(bytes_to_read)
-      print(chunk)
-      remaining_bytes -= bytes_to_read
-      file_size = start_pos
+    for chunk in read_chunks(file, chunk_size):
+      chunk_list.append(chunk)
+  prev_hash = None
+  h0 = None
+  file_blocks = chunk_list[:]
+  for idx, chunk in enumerate(chunk_list[::-1]):
+    curr_hash = hash_data(chunk + prev_hash) if prev_hash else hash_data(chunk)
+    prev_hash = curr_hash
+    h0 = curr_hash.hex()
+  return file_blocks, h0
 
-def bytes_to_bits(byte_data):
-  return ''.join(format(byte, "08b") for byte in byte_data)
-
-def bits_to_bytes(bits):
-  int_value = int(bits, 2)
-  num_bytes = (len(bits) + 7) 
-  return int_value.to_bytes(num_bytes, 'big')
-
-def hash_file(file_path):
-  data_list = []
-  with open(file_path, "rb") as file:
-    for chunk in read_chunks(file):
-      data_list.append(chunk)
-  return data_list
+# read and verify each block
+def verify_blocks(file_blocks, h0, chunk_size=1024):
+  def read_blocks():
+    for block in file_blocks:
+      yield block
+  h = h0
+  for block in read_blocks(file_blocks):
+    pass
+  print("File is clean")
 
 if __name__ == "__main__":
-  prev_hash = None
-  curr_hash = None
-  for data in hash_file(file_path)[::-1]:
-    curr_hash = chunk_hash(data) if not prev_hash else chunk_hash(data + prev_hash)
-    prev_hash = curr_hash
-  print(curr_hash.hex())
+  file_path = "test_file/birthday.mp4"
+  chunk_size = 1024
+  file_blocks, h0 = hash_file(file_path, chunk_size)
+  print(h0)
