@@ -1,3 +1,1 @@
-# Hashing files
-
-A simple implementation that hash and verify files by using SHA256 from hashlib to hash each block
+Hashing files by reading and verifying blocks of data using SHA256 from hashlib
